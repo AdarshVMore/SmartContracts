@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
+import './PriceConverter.sol';
 
 contract chai{
 
-
     address payable owner;
-    uint256 public perChai = 9900000000000;
-    uint256 public value;
+    uint256 public perChai = 100000000000000;
+    uint public value;
 
     struct Memo{
         string name;
@@ -15,7 +15,6 @@ contract chai{
         uint noOfChai;
         address sender;
         uint timestamp;
-
     }
     Memo[] memos;
 
@@ -28,15 +27,18 @@ contract chai{
         value = _noOfChai * perChai; 
     }
 
-    function payForChai(uint256 amount) public payable{
+    function payForChai() public payable{
         require(msg.value >= value, "havent send enough");
-        (bool success , ) = payable(owner).call{value: amount}("");
-        require(success , "txn aint sucessfull");
+        value = 0;
+    }
 
+    function withdrawChaiAmount() public payable{
+        require(msg.sender == owner, "u r not the owner");
+        (bool success , ) = payable(owner).call{value: address(this).balance}("");
+        require(success , "txn aint sucessfull");
     }
 
     function getMemo() view public returns (Memo[] memory){
         return memos;
-
     }
 }
